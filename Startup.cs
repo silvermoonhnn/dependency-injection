@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Net.Http;
+using Npgsql;
 
 namespace DependencyInjection
 {
@@ -26,6 +28,14 @@ namespace DependencyInjection
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddControllersWithViews()
+                    .AddNewtonsoftJson();
+
+            var connection = new NpgsqlConnection("Host=127.0.0.1;Username=postgres;Password=qwert;Database=member_db");
+            services.AddSingleton<NpgsqlConnection>(connection);
+            services.AddTransient<IDatabase, Database>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
