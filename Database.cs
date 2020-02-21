@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using DependencyInjection.Model;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 
 namespace DependencyInjection
@@ -8,8 +11,8 @@ namespace DependencyInjection
     {
         int Create(Member member);
         List<Member> Read();
-        List<Member> GetById(int id);
-        int Update(Member member, int id);
+        Member GetById(int id);
+        int Update([FromBody]JsonPatchDocument<Member> member, int id);
         int Delete(int id);
     }
     class Database : IDatabase
@@ -58,27 +61,34 @@ namespace DependencyInjection
             return members;
         }
 
-        public List<Member> GetById(int id)
+        public Member GetById(int id)
         {
             var command = _connection.CreateCommand();
             command.CommandText = $"SELECT * FROM member WHERE id={id}";
             var result = command.ExecuteReader();
-            var members = new List<Member>();
-
+            result.Read();
+            var members = new Member()
+            { 
+                Id = (int)result[0], Username = (string)result[1], Password = (string)result[2], Email = (string)result[3], FullName = (string)result[4], Popularity = (string)result[5]
+            };
             return members;
         }
 
-        public int Update(Member member, int id)
+        public int Update([FromBody]JsonPatchDocument<Member> member, int id)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = $"UPDATE member (id, username, pass, email, fullname, popularity) SET VALUES (@id, @username, @pass, @email, @fullname, @popularity) WHERE id={id}";
+            var members = GetById(id);
+            _connection.Open();
+            member.ApplyTo(members);
 
-            command.Parameters.AddWithValue("@id", member.Id);
-            command.Parameters.AddWithValue("@username", member.Username);
-            command.Parameters.AddWithValue("@pass", member.Password);
-            command.Parameters.AddWithValue("@email", member.Email);
-            command.Parameters.AddWithValue("@fullname", member.FullName);
-            command.Parameters.AddWithValue("@popularity", member.Popularity);
+            command.CommandText = $"UPDATE member SET (username, pass, email, fullname, popularity) = (@username, @pass, @email, @fullname, @popularity) WHERE id={id}";
+
+            
+            command.Parameters.AddWithValue("@username", members.Username);
+            command.Parameters.AddWithValue("@pass", members.Password);
+            command.Parameters.AddWithValue("@email", members.Email);
+            command.Parameters.AddWithValue("@fullname", members.FullName);
+            command.Parameters.AddWithValue("@popularity", members.Popularity);
 
             command.Prepare();
 

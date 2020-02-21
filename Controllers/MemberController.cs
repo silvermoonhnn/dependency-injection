@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.Extensions.Logging;
 using DependencyInjection.Model;
 
@@ -50,7 +51,7 @@ namespace DependencyInjection.Controllers
         }
 
         [HttpPatch("{id}")]
-        public IActionResult PatchMember(Member member, int id)
+        public IActionResult PatchMember([FromBody]JsonPatchDocument<Member> member, int id)
         {
             var result = _database.Update(member, id);
             return Ok(result);
