@@ -32,7 +32,7 @@ namespace DependencyInjection
             services.AddControllersWithViews()
                     .AddNewtonsoftJson();
 
-            var connection = new NpgsqlConnection("Host=127.0.0.1;Username=postgres;Password=qwert;Database=member_db");
+            var connection = new NpgsqlConnection("Host=127.0.0.1;Username=postgres;Password=qwerty;Database=member_db");
             services.AddSingleton<NpgsqlConnection>(connection);
             services.AddTransient<IDatabase, Database>();
 

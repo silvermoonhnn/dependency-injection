@@ -25,9 +25,8 @@ namespace DependencyInjection
         public int Create(Member member)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = "INSERT INTO member (id, username, pass, email, fullname, popularity) VALUES (@id, @username, @pass, @email, @fullname, @popularity) RETURNING id";
+            command.CommandText = "INSERT INTO member (username, pass, email, fullname, popularity) VALUES (@username, @pass, @email, @fullname, @popularity) RETURNING id";
 
-            command.Parameters.AddWithValue("@id", member.Id);
             command.Parameters.AddWithValue("@username", member.Username);
             command.Parameters.AddWithValue("@pass", member.Password);
             command.Parameters.AddWithValue("@email", member.Email);
@@ -83,7 +82,7 @@ namespace DependencyInjection
 
             command.Prepare();
 
-            var result = command.ExecuteScalar();
+            var result = command.ExecuteNonQuery();
             _connection.Close();
 
             return (int)result;
