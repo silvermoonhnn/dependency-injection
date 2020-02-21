@@ -1,9 +1,10 @@
 using System;
 
-namespace DependencyInjection
+namespace DependencyInjection.Model
 {
     public class Member
     {
+         public int Id { get; set; }
        public string Username { get; set; }
 
        public string Password { get; set; }
@@ -13,10 +14,5 @@ namespace DependencyInjection
        public string FullName { get; set; }
 
        public string Popularity { get; set; }
-    }
-
-    public class IdMember : Member
-    {
-        public int Id { get; set; }
     }
 }
